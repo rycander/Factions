@@ -26,7 +26,6 @@ public class PlayerActions : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit, 100000)) { 
-<<<<<<< HEAD
 				if (hit.transform.tag == "Ground") {
 					targetPos = ray.GetPoint(0); 
 					targetPos.y = 0;
@@ -36,16 +35,6 @@ public class PlayerActions : MonoBehaviour {
 				if (hit.transform.tag == "Populus") {
 					//TODO get move position to populi 
 				}
-=======
-				targetPos = ray.GetPoint(0); 
-				targetPos.y = 0;
-//				transform.position = targetPos; 
-				lerpTime = Vector3.Distance(startPos, targetPos) / clickSpeed; 
-				startTime = Time.time;
-				// Debug.Log("hit " + hit.collider.gameObject.name.ToString ());
-				target = hit.collider.gameObject;
-				MayAttack (target);
->>>>>>> 75bfbc9b2e59ecc243ef97a2ddd223f8169a8740
 			}
 		}
 
@@ -63,16 +52,10 @@ public class PlayerActions : MonoBehaviour {
 			}
 		}
 	}
-<<<<<<< HEAD
-
 	IEnumerator Attack() {
 	//TODO Attack stuff
 		yield return new WaitForSeconds(attackTime); 
 	}
-}
-=======
->>>>>>> 75bfbc9b2e59ecc243ef97a2ddd223f8169a8740
-
 	void MayAttack (GameObject target) {
 		if ("Square" == target.name) {
 			enemy = target;

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerActions : MonoBehaviour {
 	
-	public Vector3 targetPos;
+	private Vector3 targetPos;
 	public float speed;
 	
 	// Use this for initialization
@@ -18,18 +18,16 @@ public class PlayerActions : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit, 100000)) { 
 				targetPos = ray.GetPoint(0); 
-				targetPos.z = 0;
+				targetPos.y = 0;
 				transform.position = targetPos; 
 			}
 		}
 
-		if (targetPos.z < 0) {
+
 			transform.Translate(speed * Input.GetAxis ("Horizontal"),
 			                    speed * Input.GetAxis ("Vertical"),
 			                    0);
-		} else {
 
-		}
 	}
 }
 

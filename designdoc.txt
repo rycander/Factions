@@ -1,0 +1,80 @@
+Factions (working title)
+
+Overview 
+
+Concept: Three factions fighting each other on a 2D map. Player is an 
+independent entity that can take actions affecting the balance of power.
+
+Genre: RTS/MOBA-like
+
+Target Audience/Platforms: TBD
+
+
+Gameplay and Mechanics
+
+Objectives:
+
+Play Flow:
+
+Mechanics:
+    1. Player: player can move around and collect food/resource and consume it 
+       or gift it to a faction minion. Player can attack elements from each of 
+       the factions. Consuming a unit of food restores health.
+         
+    2. Terrain: map will contain obstacles.
+    
+    3. "Like" meters: as the player takes actions for/against a faction the 
+      opinion that faction has toward the player will change. If the faction 
+      like is below a certain threshold (X%) the faction minions will be hostile
+      towards the player. If the like threshold is above a certain level (Y%) 
+      the player gains... 
+      /* insert benefit here. There should be incremental benefits at certain 
+      thresholds, such as powerups or having faction minions follow the player 
+      for a time */
+      
+    4. Food/Resource: randomly placed on the map, regenerate every 30 seconds.
+    
+    5. Faction minions: 4 are spawned from every spawn point every 30 seconds,
+      and an additional unit per unit of food available (this consumes to food).
+      Minions will move towards securing food nodes and attacking another facti-
+      on. If the player gives a food unit to a minion a new minion will spawn at
+      that location.
+      
+    6. Faction expansion:
+    
+    7. Wildlife: occasionally spawn an animal that wanders around. A faction 
+    killing it gains more food/resource than a regular food/resource node. Wild-
+    life will also consume food from the nodes.
+    
+    8. Combat:
+    
+    
+    
+Assets Needed
+    1. Graphics: sprite sheet with very simplified shapes and colors currently 
+       used. Red square, blue circle, yellow triangle for the three factions, 3
+       verticle green lines for a food node, fuschia diamond for the player, 
+       fuschia diamond with protruding lines for a player attacking, diagonal 
+       line to overlay on an entity to indicate it has been hit, 4 random blobs
+       for terrain, a chevron to be placed atop a faction sprite to signify a
+       spawning point, HATS HATS HATS!!!!, deer for the wildlife, brown version
+       of the food node for food unit being moved.
+       
+    2. UI:
+    
+    
+Interface
+    1.Player controls: clicking a spot on the screen will cause the player unit 
+      to move to that location. Clicking on a food node collects that food unit.
+      If carrying a food unit, clicking a faction unit will give the food to 
+      that unit. Clicking a faction minion while NOT carrying food will attack 
+      that minion.
+    
+    2.UI:
+    
+Artificial Intelligence
+    1. Factions overall:
+    2. Faction minions:
+    3. Wildlife: walks randomly, if detects food node will move towards node and
+      consume food. If next to a food node will stop random walking and just
+      consume the food until killed.

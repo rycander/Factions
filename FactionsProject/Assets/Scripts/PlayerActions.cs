@@ -10,6 +10,7 @@ public class PlayerActions : MonoBehaviour {
 	private float t;
 	public float controlSpeed = 0.2f;
 	public float clickSpeed = 1f; 
+	public float attackTime = 1f; 
 	
 	// Use this for initialization
 	void start() {
@@ -23,11 +24,15 @@ public class PlayerActions : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit, 100000)) { 
-				targetPos = ray.GetPoint(0); 
-				targetPos.y = 0;
-//				transform.position = targetPos; 
-				lerpTime = Vector3.Distance(startPos, targetPos) / clickSpeed; 
-				startTime = Time.time; 
+				if (hit.transform.tag == "Ground") {
+					targetPos = ray.GetPoint(0); 
+					targetPos.y = 0;
+					lerpTime = Vector3.Distance(startPos, targetPos) / clickSpeed; 
+					startTime = Time.time; 
+				}
+				if (hit.transform.tag == "Populus") {
+					//TODO get move position to populi 
+				}
 			}
 		}
 
@@ -44,6 +49,11 @@ public class PlayerActions : MonoBehaviour {
 				lerpTime = 0; 
 			}
 		}
+	}
+
+	IEnumerator Attack() {
+	//TODO Attack stuff
+		yield return new WaitForSeconds(attackTime); 
 	}
 }
 

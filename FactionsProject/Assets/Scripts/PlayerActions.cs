@@ -23,11 +23,14 @@ public class PlayerActions : MonoBehaviour {
 			}
 		}
 
-
+		if (targetPos < 0) {
 			transform.Translate(speed * Input.GetAxis ("Horizontal"),
 			                    speed * Input.GetAxis ("Vertical"),
 			                    0);
+		}
+		else {
 
+		}
 	}
 }
 

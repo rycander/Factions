@@ -12,4 +12,8 @@ public class FactionMovement : MonoBehaviour {
 	void Update () {
 	
 	}
+
+	void onMouseDown() {
+		print ("FactionMovement.onMouseDown");
+	}
 }

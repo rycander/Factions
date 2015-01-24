@@ -7,6 +7,7 @@ public class PlayerActions : MonoBehaviour {
 	private Vector3 startPos;
 	private float lerpTime = 0;
 	private float startTime;
+	private float t;
 	public float controlSpeed = 0.2f;
 	public float clickSpeed = 1f; 
 	
@@ -36,7 +37,7 @@ public class PlayerActions : MonoBehaviour {
 			                    0);
 		}
 		else if (lerpTime > 0) {
-			float t = (Time.time - startTime) / lerpTime; 
+			t = (Time.time - startTime) / lerpTime; 
 			transform.position = Vector3.Lerp(startPos, targetPos, t); 
 			if (t >= 1) {
 				targetPos = new Vector3 (0, -0.1f, 0); 

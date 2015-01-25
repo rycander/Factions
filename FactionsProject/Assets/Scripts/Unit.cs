@@ -45,6 +45,7 @@ public class Unit : MonoBehaviour {
 
 	private Transform enemy; 
 	private Vector3 enemyPos; 
+	private bool isEnemyActive;
 	private Vector3 targetPos;
     
     //needed to trigger animations
@@ -74,6 +75,7 @@ public class Unit : MonoBehaviour {
 		}
 		enemy = NearestEnemy(enemy);
 		if (enemy != null) {
+			isEnemyActive = enemy.gameObject.activeSelf;
 			attackDude = true;
 			if (enemyPos != enemy.position) {
 				targetPos = enemy.position;
@@ -147,7 +149,8 @@ public class Unit : MonoBehaviour {
 			if (gameObject.activeSelf)
 				yield return new WaitForSeconds(attackTime); 
         }
-    }
+		enemy = null;
+	}
 
 	IEnumerator AttackUnit () {
 		for (;gameObject.activeSelf && enemy != null && enemy.gameObject.activeSelf;) {
@@ -156,13 +159,14 @@ public class Unit : MonoBehaviour {
 			if (gameObject.activeSelf)
 				yield return new WaitForSeconds(attackTime); 
 		}
+		enemy = null;
 	}
 
 	/**
 	 * Ignore inactive.
 	 * If player attacked units more, attack player as if a member of another faction.
 	 */
-	Transform HatedPlayer(Transform enemy) {
+	Transform HatedPlayer() {
 		GameObject player = GameObject.FindGameObjectWithTag("Player");
 		if (player.activeSelf) {
 			if (isHatePlayer (faction)) {
@@ -183,7 +187,7 @@ public class Unit : MonoBehaviour {
 	Transform NearestEnemy(Transform enemy) {
 		if (null == enemy || !enemy.gameObject.activeSelf) {
 			float distance = loseDistance;
-			Transform player = HatedPlayer(enemy);
+			Transform player = HatedPlayer();
 			if (null != player) {
 				enemy = player;
 				distance = Vector3.Distance(transform.position, player.position);
@@ -192,10 +196,11 @@ public class Unit : MonoBehaviour {
 			float nearestDistance = distance;
 			for (int u = 0; u < units.Length; u++) {
 				Unit unit = units[u].GetComponent<Unit>();
-				if (faction != unit.faction) {
-					Transform other = units[u].transform;
+				Transform other = units[u].transform;
+				if (faction != unit.faction && other.gameObject.activeSelf) {
 					distance = Vector3.Distance(transform.position, other.position);
 					if (distance < nearestDistance) {
+						// Debug.Log ("Unit.NearestEnemy: other");
 						enemy = other;
 					}
 				}

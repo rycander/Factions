@@ -3,8 +3,8 @@ using System.Collections;
 
 public class Unit : MonoBehaviour {
 
-	public int maxHealth = 100; 
-	public int health {get; set;}
+	public int maxHealth = 5; 
+	public int health;
 	public int faction; 
 
 	public int attackStrength = 1;
@@ -46,13 +46,15 @@ public class Unit : MonoBehaviour {
 			//TODO add to inactive list 
 			gameObject.SetActive(false); 
 		}
+		enemy = NearestForeigner(enemy);
 		if (enemy != null) {
+			attackDude = true;
 			if (enemyPos != enemy.position) {
 				targetPos = enemy.position;
 				enemyPos = enemy.position;
 			}
 		}
-        
+
         direction = targetPos.x - transform.position.x; //defines if object is moving left or right    
         if (direction >= 0)
             transform.Rotate(0, 180, 0); //sets movement animation to right
@@ -112,17 +114,46 @@ public class Unit : MonoBehaviour {
 	}
 
 	IEnumerator AttackPlayer () {
-		for (;enemy.GetComponent<PlayerActions>().health > 0;) {
-            anim.SetTrigger("attackDude");//trigger the attack animation
+		for (;gameObject.activeSelf && enemy != null && enemy.GetComponent<Unit>().health > 0;) {
+			anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<PlayerActions>().Hurt(attackStrength); 
-			yield return new WaitForSeconds(attackTime); 
+			if (gameObject.activeSelf)
+				yield return new WaitForSeconds(attackTime); 
         }
     }
+
 	IEnumerator AttackUnit () {
-		for (;enemy.GetComponent<Unit>().health > 0;) {
+		for (;gameObject.activeSelf && enemy != null && enemy.GetComponent<Unit>().health > 0;) {
             anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<Unit>().Hurt(attackStrength, transform); 
-			yield return new WaitForSeconds(attackTime); 
+			if (gameObject.activeSelf)
+				yield return new WaitForSeconds(attackTime); 
 		}
+	}
+
+	/**
+	 * Unit attacks nearest active enemy.
+	 * Ignore inactive.
+	 * Filter to units of another faction.
+	 * 
+	 * TODO If player attacked units more, attack player as if a member of another faction.
+	 */
+	Transform NearestForeigner(Transform enemy) {
+		if (null == enemy || !enemy.gameObject.activeSelf) {
+			enemy = null;
+			GameObject[] units = GameObject.FindGameObjectsWithTag("Populus");
+			float nearestDistance = float.PositiveInfinity;
+			for (int u = 0; u < units.Length; u++) {
+				Unit unit = units[u].GetComponent<Unit>();
+				if (faction != unit.faction) {
+					Transform other = units[u].transform;
+					float distance = Vector3.Distance(transform.position, other.position);
+					if (distance < nearestDistance) {
+						enemy = other;
+					}
+				}
+			}
+		}
+		return enemy;
 	}
 }

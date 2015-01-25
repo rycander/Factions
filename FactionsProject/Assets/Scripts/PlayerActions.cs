@@ -71,9 +71,7 @@ public class PlayerActions : MonoBehaviour {
 				float dist = Vector3.Distance(transform.position, targetPos);
 				if (dist <= attackDistance) {
 					targetPos = transform.position;           
-					StartCoroutine("Attack"); 
-                    anim.SetTrigger("attackDude"); //trigger the attack animation
-                    
+					StartCoroutine("Attack");                     
 				}
 				else {
 					StopCoroutine("Attack");
@@ -86,11 +84,13 @@ public class PlayerActions : MonoBehaviour {
 	}
 
 	public void Hurt(int damage) {
-		health -= damage; 
+		anim.SetTrigger("Hit");
+        health -= damage; 
 	}
 
 	IEnumerator Attack() {       
 		for (;unit.GetComponent<Unit>().health > 0;) {
+            anim.SetTrigger("attackDude"); //trigger the attack animation
 			unit.GetComponent<Unit>().Hurt(attackStrength, transform); 
 			yield return new WaitForSeconds(attackTime); 
             

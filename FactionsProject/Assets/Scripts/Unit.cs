@@ -83,7 +83,8 @@ public class Unit : MonoBehaviour {
 	}
 
 	public void Hurt (int damage, Transform attacker) {
-		health -= damage; 
+		anim.SetTrigger("Hit");
+        health -= damage; 
 		targetPos = transform.position; 
 		if (enemy == null) {
 			enemy = attacker;
@@ -95,8 +96,8 @@ public class Unit : MonoBehaviour {
 				StopCoroutine("AttackPlayer"); 
 				StartCoroutine("AttackUnit");
 			}
-            //trigger the attack animation
-            anim.SetTrigger("attackDude");
+            
+            anim.SetTrigger("attackDude");//trigger the attack animation
 		}
 	}
 
@@ -108,12 +109,14 @@ public class Unit : MonoBehaviour {
 
 	IEnumerator AttackPlayer () {
 		for (;enemy.GetComponent<PlayerActions>().health > 0;) {
+            anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<PlayerActions>().Hurt(attackStrength); 
 			yield return new WaitForSeconds(attackTime); 
         }
     }
 	IEnumerator AttackUnit () {
 		for (;enemy.GetComponent<Unit>().health > 0;) {
+            anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<Unit>().Hurt(attackStrength, transform); 
 			yield return new WaitForSeconds(attackTime); 
 		}

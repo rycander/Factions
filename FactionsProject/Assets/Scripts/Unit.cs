@@ -28,24 +28,27 @@ public class Unit : MonoBehaviour {
 
 	// Faction end
 
+	private bool attacking = true;
 	private int maxHealth = 
 		// 5;
-		20;
+		// 20;
+		50;
 		// 100;
 	public int health;
 	public int faction; 
-
 	public int attackStrength = 1;
 	public float attackTime = 1f;
 	public float attackDistance = 1f; 
 	public bool attackDude{get; set;}  
 	private float loseDistance = float.PositiveInfinity; 
 
-	public float speed = 4f; 
+	private float speed = 
+		0.5f;
+		// 1f;
+		// 4f;
 
 	private Transform enemy; 
 	private Vector3 enemyPos; 
-	private bool isEnemyActive;
 	private Vector3 targetPos;
     
     //needed to trigger animations
@@ -74,12 +77,9 @@ public class Unit : MonoBehaviour {
 		}
 		enemy = NearestEnemy(enemy);
 		if (enemy != null) {
-			isEnemyActive = enemy.gameObject.activeSelf;
 			attackDude = true;
-			if (enemyPos != enemy.position) {
-				targetPos = enemy.position;
-				enemyPos = enemy.position;
-			}
+			targetPos = enemy.position;
+			enemyPos = enemy.position;
 		}
 
         direction = targetPos.x - transform.position.x; //defines if object is moving left or right    
@@ -90,23 +90,32 @@ public class Unit : MonoBehaviour {
 
 		if (targetPos != transform.position) {
 			if (attackDude) {
-				float dist = Vector3.Distance(transform.position, enemy.position);
+				float dist = Vector3.Distance(this.transform.position, enemy.position);
 				
 				if (dist > loseDistance) 
 					stopAttacking(); 
 				else if (dist <= attackDistance) {
 					targetPos = transform.position;
 					if (enemy.gameObject.tag == "Player") {
-						StopCoroutine("AttackUnit");
+						if (attacking) {
+							attacking = false;
+							StopCoroutine("AttackUnit");
+						}
 						StartCoroutine("AttackPlayer");
 					} else {
-						StopCoroutine("AttackPlayer"); 
+						if (attacking) {
+							attacking = false;
+							StopCoroutine("AttackPlayer"); 
+						}
                         StartCoroutine("AttackUnit");
 					}
                 }
 				else {
-					StopCoroutine("AttackUnit");
-                    StopCoroutine("AttackPlayer"); 
+					if (attacking) {
+						attacking = false;
+						StopCoroutine("AttackUnit");
+    	                StopCoroutine("AttackPlayer"); 
+					}
                     targetPos = enemy.position; 
 				}
 			}
@@ -143,6 +152,7 @@ public class Unit : MonoBehaviour {
 
 	IEnumerator AttackPlayer () {
 		for (;gameObject.activeSelf && enemy != null && enemy.gameObject.activeSelf;) {
+			attacking = true;
 			anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<PlayerActions>().Hurt(attackStrength); 
 			if (gameObject.activeSelf)
@@ -153,7 +163,8 @@ public class Unit : MonoBehaviour {
 
 	IEnumerator AttackUnit () {
 		for (;gameObject.activeSelf && enemy != null && enemy.gameObject.activeSelf;) {
-            anim.SetTrigger("attackDude");//trigger the attack animation
+			attacking = true;
+			anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<Unit>().Hurt(attackStrength, transform); 
 			if (gameObject.activeSelf)
 				yield return new WaitForSeconds(attackTime); 
@@ -169,7 +180,7 @@ public class Unit : MonoBehaviour {
 		GameObject player = GameObject.FindGameObjectWithTag("Player");
 		if (player.activeSelf) {
 			if (isHatePlayer (faction)) {
-				float distance = Vector3.Distance(transform.position, player.transform.position);
+				float distance = Vector3.Distance(this.transform.position, player.transform.position);
 				if (distance < loseDistance) {
 					enemy = player.transform;
 				}
@@ -184,23 +195,26 @@ public class Unit : MonoBehaviour {
 	 * Filter to units of another faction.
 	 */
 	Transform NearestEnemy(Transform enemy) {
-		if (null == enemy || !enemy.gameObject.activeSelf) {
-			float distance = loseDistance;
+		if (true || null == enemy || !enemy.gameObject.activeSelf) {
+			float nearestDistance = loseDistance;
+			float distance;
 			Transform player = HatedPlayer();
 			if (null != player) {
 				enemy = player;
-				distance = Vector3.Distance(transform.position, player.position);
+				nearestDistance = Vector3.Distance(this.transform.position, player.position);
+				return enemy;
 			}
 			GameObject[] units = GameObject.FindGameObjectsWithTag("Populus");
-			float nearestDistance = distance;
 			for (int u = 0; u < units.Length; u++) {
-				Unit unit = units[u].GetComponent<Unit>();
-				Transform other = units[u].transform;
-				if (faction != unit.faction && other.gameObject.activeSelf) {
-					distance = Vector3.Distance(transform.position, other.position);
-					if (distance < nearestDistance) {
-						// Debug.Log ("Unit.NearestEnemy: other");
-						enemy = other;
+				GameObject other = units[u];
+				if (other && other.activeSelf) {
+					Unit unit = other.GetComponent<Unit>();
+					if (unit && faction != unit.faction) {
+						distance = Vector3.Distance(this.transform.position, other.transform.position);
+						if (distance < nearestDistance) {
+							// Debug.Log ("Unit.NearestEnemy: other");
+							enemy = other.transform;
+						}
 					}
 				}
 			}

@@ -14,13 +14,15 @@ public class PlayerActions : MonoBehaviour {
 	public int attackStrength = 10; 
 	public float attackDistance = 0.5f;
 	public int health{get; set;}
-	public int maxHealth = 100; 
+	public int maxHealth = 100;
+    Animator anim;    
 	
 	// Use this for initialization
 	void Start() {
 		targetPos = transform.position; 
 		health = maxHealth; 
 		rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        anim = GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -38,7 +40,7 @@ public class PlayerActions : MonoBehaviour {
 				if (hit.transform.tag == "Populus") {
 					unit = hit.transform; 
 					targetPos = unit.position; 
-					attackDude = true; 
+					attackDude = true;                                      
 					enemy = hit.transform; 
 					enemyPos = enemy.position;
 				}
@@ -56,6 +58,8 @@ public class PlayerActions : MonoBehaviour {
 				if (dist <= attackDistance) {
 					targetPos = transform.position; 
 					StartCoroutine("Attack");
+                    //trigger the attack animation
+                    anim.SetTrigger("attackDude");
 				}
 				else {
 					StopCoroutine("Attack");

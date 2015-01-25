@@ -28,6 +28,7 @@ public class Unit : MonoBehaviour {
 
 	// Faction end
 
+	public int otherCount = 0;
 	private bool attacking = true;
 	private int maxHealth = 
 		// 5;
@@ -43,8 +44,8 @@ public class Unit : MonoBehaviour {
 	private float loseDistance = float.PositiveInfinity; 
 
 	private float speed = 
-		0.5f;
-		// 1f;
+		// 0.5f;
+		1f;
 		// 4f;
 
 	private Transform enemy; 
@@ -89,8 +90,8 @@ public class Unit : MonoBehaviour {
             transform.Rotate(0, 0, 0); //sets movement animation to left
 
 		if (targetPos != transform.position) {
-			if (attackDude) {
-				float dist = Vector3.Distance(this.transform.position, enemy.position);
+			if (attackDude && enemy) {
+				float dist = Vector3.Distance(transform.position, enemy.position);
 				
 				if (dist > loseDistance) 
 					stopAttacking(); 
@@ -202,18 +203,21 @@ public class Unit : MonoBehaviour {
 			if (null != player) {
 				enemy = player;
 				nearestDistance = Vector3.Distance(this.transform.position, player.position);
-				return enemy;
+				// return enemy;
 			}
 			GameObject[] units = GameObject.FindGameObjectsWithTag("Populus");
+			otherCount = 0;
 			for (int u = 0; u < units.Length; u++) {
 				GameObject other = units[u];
 				if (other && other.activeSelf) {
 					Unit unit = other.GetComponent<Unit>();
 					if (unit && faction != unit.faction) {
+						otherCount++;
 						distance = Vector3.Distance(this.transform.position, other.transform.position);
 						if (distance < nearestDistance) {
 							// Debug.Log ("Unit.NearestEnemy: other");
 							enemy = other.transform;
+							nearestDistance = distance;
 						}
 					}
 				}

@@ -3,89 +3,75 @@ using System.Collections;
 
 public class PlayerActions : MonoBehaviour {
 
-	private GameObject enemy;
-	private GameObject target;
+	private Transform enemy;
+	private Vector3 enemyPos;
 	private Vector3 targetPos;
-	private Vector3 startPos;
-	private float lerpTime = 0;
-	private float startTime;
-	private float t;
 	private Transform unit; 
-	private bool attackDude = false; 
+	private bool attackDude = false;
 	public float controlSpeed = 0.2f;
 	public float clickSpeed = 1f; 
 	public float attackTime = 1f; 
 	public int attackStrength = 10; 
 	public float attackDistance = 0.5f;
+	public int health{get; set;}
+	public int maxHealth = 100; 
 	
 	// Use this for initialization
-	void start() {
-		targetPos = new Vector3 (0, -0.1f, 0); 
+	void Start() {
+		targetPos = transform.position; 
+		health = maxHealth; 
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetMouseButtonDown(0)) {
-			startPos = transform.position; 
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit, 100000)) { 
 				if (hit.transform.tag == "Ground") {
-					targetPos = ray.GetPoint(0);  
+					targetPos = ray.GetPoint(hit.distance - 0.5f);  
 					attackDude = false;
-					StopCoroutine("Attack"); 
+					StopCoroutine("Attack");
+					enemy = null;
 				}
 				if (hit.transform.tag == "Populus") {
-					//TODO get move position to populi 
 					unit = hit.transform; 
 					targetPos = unit.position; 
 					attackDude = true; 
+					enemy = hit.transform; 
+					enemyPos = enemy.position;
 				}
-				targetPos.y = 0;
-				lerpTime = Vector3.Distance(startPos, targetPos) / clickSpeed; 
-				startTime = Time.time;
 			}
 		}
-
-		if (targetPos.y < 0) {
-			transform.Translate(controlSpeed * Input.GetAxis ("Horizontal"),
-			                    controlSpeed * Input.GetAxis ("Vertical"),
-			                    0);
-		}
-		else if (lerpTime > 0) {
-			t = (Time.time - startTime) / lerpTime; 
-			transform.position = Vector3.Lerp(startPos, targetPos, t); 
+		
+		if (attackDude && enemyPos != enemy.position) {
+			targetPos = enemy.position;
+			enemyPos = enemy.position;
+        }
+		if (targetPos != transform.position) {
 			if (attackDude) {
+				targetPos = unit.position; 
 				float dist = Vector3.Distance(transform.position, targetPos);
 				if (dist <= attackDistance) {
-					t = 1; 
+					targetPos = transform.position; 
 					StartCoroutine("Attack");
 				}
+				else {
+					StopCoroutine("Attack");
+				}
 			}
-			if (t >= 1) {
-				targetPos = new Vector3 (0, -0.1f, 0); 
-				lerpTime = 0; 
-			}
+			transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * clickSpeed); 
 		}
 	}
 
-	void LateUpdate () {
-		if (attackDude) {
-
-		}
+	public void Hurt(int damage) {
+		health -= damage; 
 	}
 
 	IEnumerator Attack() {
 		for (;unit.GetComponent<Unit>().health > 0;) {
-			unit.GetComponent<Unit>().health -= attackStrength; 
+			unit.GetComponent<Unit>().Hurt(attackStrength, transform); 
 			yield return new WaitForSeconds(attackTime); 
-		}
-	}
-
-	void MayAttack (GameObject target) {
-		if ("Square" == target.name) {
-			enemy = target;
-			Debug.Log("MayAttack " + enemy.ToString ());
 		}
 	}
 
@@ -95,12 +81,6 @@ public class PlayerActions : MonoBehaviour {
 
 	void OnCollisionEnter (Collision col)
 	{
-		Debug.Log("onCollisionEnter " + col.gameObject.ToString ());
-		if(null != enemy && enemy == col.gameObject)
-		{
-			enemy = null;
-			Debug.Log("   attack " + col.gameObject.ToString ());
-			Destroy(col.gameObject);
-		}
+
 	}
 }

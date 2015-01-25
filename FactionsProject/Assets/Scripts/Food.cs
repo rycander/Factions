@@ -5,6 +5,7 @@ public class Food : MonoBehaviour {
 
 	private Transform player;
 	public string state;
+	private Collider[] colliders;
 	private bool isFirst = true;
 	private Spawn spawn;
 
@@ -23,6 +24,10 @@ public class Food : MonoBehaviour {
 				state = "pickup";
 				Debug.Log ("Food.update: pickup");
 			}
+			else {
+
+				AttractUnit ();
+			}
 		}
 		else if ("pickup" == state) {
 			if (isFirst) {
@@ -34,6 +39,19 @@ public class Food : MonoBehaviour {
 			if (distance <= 1) {
 				spawn.SpawnUnit();
 				gameObject.SetActive (false);
+			}
+		}
+	}
+
+	void AttractUnit() {
+		float radius = 10.0f;
+		colliders = Physics.OverlapSphere(transform.position, radius);		
+		for (var i = 0; i < colliders.Length; i++) {
+			Collider col = colliders[i];
+			if ("Populus" == col.transform.tag) {
+				float speed = 1f;  // TODO use unit speed
+				float step = speed * Time.deltaTime;
+				col.transform.position = Vector3.MoveTowards(col.transform.position, transform.position, step);
 			}
 		}
 	}

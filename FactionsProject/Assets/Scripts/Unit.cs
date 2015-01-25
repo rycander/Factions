@@ -3,20 +3,49 @@ using System.Collections;
 
 public class Unit : MonoBehaviour {
 
-	public int maxHealth = 100; 
-	public int health {get; set;}
+	// Faction begin:
+	// TODO extract faction logic to another file
+
+	public static int factionCount = 3;
+	public static int[] playerFriendship;
+
+	public static void StartFaction () {
+		if (null == playerFriendship) {
+			playerFriendship = new int[factionCount];
+			for (int f = 0; f < factionCount; f++) {
+				playerFriendship[f] = 0;
+			}
+		}
+	}
+
+	public static void AddFaction(int factionIndexPlusOne, int amount) {
+		playerFriendship [factionIndexPlusOne - 1] += amount;
+	}
+
+	public static bool isHatePlayer(int factionIndexPlusOne) {
+		return playerFriendship [factionIndexPlusOne - 1] < 0;
+	}
+
+	// Faction end
+
+	private int maxHealth = 
+		// 5;
+		20;
+		// 100;
+	public int health;
 	public int faction; 
 
 	public int attackStrength = 1;
 	public float attackTime = 1f;
 	public float attackDistance = 1f; 
 	public bool attackDude{get; set;}  
-	public float loseDistance = 10f; 
+	private float loseDistance = float.PositiveInfinity; 
 
 	public float speed = 4f; 
 
 	private Transform enemy; 
 	private Vector3 enemyPos; 
+	private bool isEnemyActive;
 	private Vector3 targetPos;
     
     //needed to trigger animations
@@ -25,13 +54,14 @@ public class Unit : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		StartFaction ();
 		health = maxHealth; 
 //		enemy =  GameObject.FindGameObjectWithTag("Player").transform; 
 		targetPos = transform.position; 
 		attackDude = false; 
         anim = GetComponent<Animator>();
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
     
@@ -41,14 +71,18 @@ public class Unit : MonoBehaviour {
 		if (health <= 0) {
 			//TODO add to inactive list 
 			gameObject.SetActive(false); 
+			return;
 		}
+		enemy = NearestEnemy(enemy);
 		if (enemy != null) {
+			isEnemyActive = enemy.gameObject.activeSelf;
+			attackDude = true;
 			if (enemyPos != enemy.position) {
 				targetPos = enemy.position;
 				enemyPos = enemy.position;
 			}
 		}
-        
+
         direction = targetPos.x - transform.position.x; //defines if object is moving left or right    
         if (direction >= 0)
             transform.Rotate(0, 180, 0); //sets movement animation to right
@@ -92,6 +126,7 @@ public class Unit : MonoBehaviour {
 			if (enemy.gameObject.tag == "Player") {
 				StopCoroutine("AttackUnit");
 				StartCoroutine("AttackPlayer");
+				AddFaction(faction, -1);
 			} else {
 				StopCoroutine("AttackPlayer"); 
 				StartCoroutine("AttackUnit");
@@ -108,17 +143,69 @@ public class Unit : MonoBehaviour {
 	}
 
 	IEnumerator AttackPlayer () {
-		for (;enemy.GetComponent<PlayerActions>().health > 0;) {
-            anim.SetTrigger("attackDude");//trigger the attack animation
+		for (;gameObject.activeSelf && enemy != null && enemy.gameObject.activeSelf;) {
+			anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<PlayerActions>().Hurt(attackStrength); 
-			yield return new WaitForSeconds(attackTime); 
+			if (gameObject.activeSelf)
+				yield return new WaitForSeconds(attackTime); 
         }
-    }
+		enemy = null;
+	}
+
 	IEnumerator AttackUnit () {
-		for (;enemy.GetComponent<Unit>().health > 0;) {
+		for (;gameObject.activeSelf && enemy != null && enemy.gameObject.activeSelf;) {
             anim.SetTrigger("attackDude");//trigger the attack animation
 			enemy.GetComponent<Unit>().Hurt(attackStrength, transform); 
-			yield return new WaitForSeconds(attackTime); 
+			if (gameObject.activeSelf)
+				yield return new WaitForSeconds(attackTime); 
 		}
+		enemy = null;
+	}
+
+	/**
+	 * Ignore inactive.
+	 * If player attacked units more, attack player as if a member of another faction.
+	 */
+	Transform HatedPlayer() {
+		GameObject player = GameObject.FindGameObjectWithTag("Player");
+		if (player.activeSelf) {
+			if (isHatePlayer (faction)) {
+				float distance = Vector3.Distance(transform.position, player.transform.position);
+				if (distance < loseDistance) {
+					enemy = player.transform;
+				}
+			}
+		}
+		return enemy;
+	}
+
+	/**
+	 * If no enemy, then unit attacks nearest active enemy.
+	 * Ignore inactive.
+	 * Filter to units of another faction.
+	 */
+	Transform NearestEnemy(Transform enemy) {
+		if (null == enemy || !enemy.gameObject.activeSelf) {
+			float distance = loseDistance;
+			Transform player = HatedPlayer();
+			if (null != player) {
+				enemy = player;
+				distance = Vector3.Distance(transform.position, player.position);
+			}
+			GameObject[] units = GameObject.FindGameObjectsWithTag("Populus");
+			float nearestDistance = distance;
+			for (int u = 0; u < units.Length; u++) {
+				Unit unit = units[u].GetComponent<Unit>();
+				Transform other = units[u].transform;
+				if (faction != unit.faction && other.gameObject.activeSelf) {
+					distance = Vector3.Distance(transform.position, other.position);
+					if (distance < nearestDistance) {
+						// Debug.Log ("Unit.NearestEnemy: other");
+						enemy = other;
+					}
+				}
+			}
+		}
+		return enemy;
 	}
 }

@@ -31,6 +31,10 @@ public class Unit : MonoBehaviour {
 		attackDude = false; 
         anim = GetComponent<Animator>();
 	}
+
+	void FixedUpdate () {
+		rigidbody.velocity = new Vector3();
+	}
 	
 	// Update is called once per frame
 	void Update () {

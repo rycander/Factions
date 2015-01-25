@@ -10,9 +10,11 @@ public class PlayerActions : MonoBehaviour {
 	private float lerpTime = 0;
 	private float startTime;
 	private float t;
+	private Transform unit; 
 	public float controlSpeed = 0.2f;
 	public float clickSpeed = 1f; 
 	public float attackTime = 1f; 
+	public int attackStrength = 10; 
 	
 	// Use this for initialization
 	void start() {
@@ -34,6 +36,8 @@ public class PlayerActions : MonoBehaviour {
 				}
 				if (hit.transform.tag == "Populus") {
 					//TODO get move position to populi 
+					unit = hit.transform; 
+					StartCoroutine(Attack()); 
 				}
 			}
 		}
@@ -54,7 +58,10 @@ public class PlayerActions : MonoBehaviour {
 	}
 	IEnumerator Attack() {
 	//TODO Attack stuff
-		yield return new WaitForSeconds(attackTime); 
+		for (;unit.GetComponent<Unit>().health > 0;) {
+			unit.GetComponent<Unit>().health -= attackStrength; 
+			yield return new WaitForSeconds(attackTime); 
+		}
 	}
 	void MayAttack (GameObject target) {
 		if ("Square" == target.name) {

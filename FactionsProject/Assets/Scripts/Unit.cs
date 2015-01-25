@@ -28,7 +28,10 @@ public class Unit : MonoBehaviour {
 
 	// Faction end
 
-	public int maxHealth = 5; 
+	private int maxHealth = 
+		// 5;
+		20;
+		// 100;
 	public int health;
 	public int faction; 
 
@@ -36,7 +39,7 @@ public class Unit : MonoBehaviour {
 	public float attackTime = 1f;
 	public float attackDistance = 1f; 
 	public bool attackDude{get; set;}  
-	public float loseDistance = 10f; 
+	private float loseDistance = float.PositiveInfinity; 
 
 	public float speed = 4f; 
 
@@ -67,9 +70,9 @@ public class Unit : MonoBehaviour {
 		if (health <= 0) {
 			//TODO add to inactive list 
 			gameObject.SetActive(false); 
+			return;
 		}
-		enemy = HatedPlayer(enemy);
-		enemy = NearestForeigner(enemy);
+		enemy = NearestEnemy(enemy);
 		if (enemy != null) {
 			attackDude = true;
 			if (enemyPos != enemy.position) {
@@ -177,16 +180,21 @@ public class Unit : MonoBehaviour {
 	 * Ignore inactive.
 	 * Filter to units of another faction.
 	 */
-	Transform NearestForeigner(Transform enemy) {
+	Transform NearestEnemy(Transform enemy) {
 		if (null == enemy || !enemy.gameObject.activeSelf) {
-			enemy = null;
+			float distance = loseDistance;
+			Transform player = HatedPlayer(enemy);
+			if (null != player) {
+				enemy = player;
+				distance = Vector3.Distance(transform.position, player.position);
+			}
 			GameObject[] units = GameObject.FindGameObjectsWithTag("Populus");
-			float nearestDistance = loseDistance;
+			float nearestDistance = distance;
 			for (int u = 0; u < units.Length; u++) {
 				Unit unit = units[u].GetComponent<Unit>();
 				if (faction != unit.faction) {
 					Transform other = units[u].transform;
-					float distance = Vector3.Distance(transform.position, other.position);
+					distance = Vector3.Distance(transform.position, other.position);
 					if (distance < nearestDistance) {
 						enemy = other;
 					}

@@ -15,7 +15,10 @@ public class PlayerActions : MonoBehaviour {
 	public float attackDistance = 0.5f;
 	public int health{get; set;}
 	public int maxHealth = 100;
-    Animator anim;    
+    
+    //needed to trigger animations
+    Animator anim;
+    public float direction;
 	
 	// Use this for initialization
 	void Start() {
@@ -27,7 +30,11 @@ public class PlayerActions : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetMouseButtonDown(0)) {
+        
+        anim.SetFloat("speed", 0); //sets animation to idle
+        transform.eulerAngles = new Vector3(270, 180, 0); //resets the rotation of the sprite
+		
+        if (Input.GetMouseButtonDown(0)) {
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit, 100000)) { 
@@ -51,21 +58,30 @@ public class PlayerActions : MonoBehaviour {
 			targetPos = enemy.position;
 			enemyPos = enemy.position;
         }
+        
+        direction = targetPos.x - transform.position.x; //defines if object is moving left or right           
+        if (direction >= 0)
+            transform.Rotate(0, 180, 0); //sets movement animation to right
+        else 
+            transform.Rotate(0, 0, 0); //sets movement animation to left
+    
 		if (targetPos != transform.position) {
 			if (attackDude) {
 				targetPos = unit.position; 
 				float dist = Vector3.Distance(transform.position, targetPos);
 				if (dist <= attackDistance) {
-					targetPos = transform.position; 
-					StartCoroutine("Attack");
-                    //trigger the attack animation
-                    anim.SetTrigger("attackDude");
+					targetPos = transform.position;           
+					StartCoroutine("Attack"); 
+                    anim.SetTrigger("attackDude"); //trigger the attack animation
+                    
 				}
 				else {
 					StopCoroutine("Attack");
 				}
 			}
-			transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * clickSpeed); 
+			transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * clickSpeed);
+            anim.SetFloat("speed", 1); //activates movement animation
+           
 		}
 	}
 
@@ -73,10 +89,11 @@ public class PlayerActions : MonoBehaviour {
 		health -= damage; 
 	}
 
-	IEnumerator Attack() {
+	IEnumerator Attack() {       
 		for (;unit.GetComponent<Unit>().health > 0;) {
 			unit.GetComponent<Unit>().Hurt(attackStrength, transform); 
 			yield return new WaitForSeconds(attackTime); 
+            
 		}
 	}
 

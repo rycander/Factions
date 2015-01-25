@@ -18,6 +18,10 @@ public class Unit : MonoBehaviour {
 	private Transform enemy; 
 	private Vector3 enemyPos; 
 	private Vector3 targetPos;
+    
+    //needed to trigger animations
+    Animator anim;
+    public float direction; 
 
 	// Use this for initialization
 	void Start () {
@@ -25,10 +29,15 @@ public class Unit : MonoBehaviour {
 //		enemy =  GameObject.FindGameObjectWithTag("Player").transform; 
 		targetPos = transform.position; 
 		attackDude = false; 
+        anim = GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+    
+        anim.SetFloat("speed", 0); //sets animation to idle
+        transform.eulerAngles = new Vector3(270, 180, 0); //resets the rotation of the sprite
+        
 		if (health <= 0) {
 			//TODO add to inactive list 
 			gameObject.SetActive(false); 
@@ -39,6 +48,12 @@ public class Unit : MonoBehaviour {
 				enemyPos = enemy.position;
 			}
 		}
+        
+        direction = targetPos.x - transform.position.x; //defines if object is moving left or right    
+        if (direction >= 0)
+            transform.Rotate(0, 180, 0); //sets movement animation to right
+        else 
+            transform.Rotate(0, 0, 0); //sets movement animation to left
 
 		if (targetPos != transform.position) {
 			if (attackDude) {
@@ -62,7 +77,8 @@ public class Unit : MonoBehaviour {
                     targetPos = enemy.position; 
 				}
 			}
-			transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * speed); 
+			transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * speed);
+            anim.SetFloat("speed", 1); //activates movement animation           
         }
 	}
 
@@ -79,6 +95,8 @@ public class Unit : MonoBehaviour {
 				StopCoroutine("AttackPlayer"); 
 				StartCoroutine("AttackUnit");
 			}
+            //trigger the attack animation
+            anim.SetTrigger("attackDude");
 		}
 	}
 

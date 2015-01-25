@@ -19,7 +19,7 @@ public class Spawn : MonoBehaviour
 		
 	}
 
-	void SpawnUnit () {
+	public void SpawnUnit () {
 		Unit clone = (Unit)Instantiate(prototype, transform.position, transform.rotation);
 	}
 }

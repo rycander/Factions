@@ -6,10 +6,12 @@ public class Food : MonoBehaviour {
 	private Transform player;
 	public string state;
 	private bool isFirst = true;
+	private Spawn spawn;
 
 	// Use this for initialization
 	void Start () {
 		player = GameObject.FindGameObjectWithTag("Player").transform;
+		spawn = (Spawn)GameObject.FindGameObjectWithTag("Spawn").transform.GetComponent<Spawn>();
 		state = "ground";
 	}
 	
@@ -28,6 +30,11 @@ public class Food : MonoBehaviour {
 				Debug.Log ("Food.update: is picked up");
 			}
 			transform.position = new Vector3(player.position.x, transform.position.y, player.position.z); 
+			float distance = Vector3.Distance(transform.position, spawn.transform.position);
+			if (distance <= 1) {
+				spawn.SpawnUnit();
+				gameObject.SetActive (false);
+			}
 		}
 	}
 }

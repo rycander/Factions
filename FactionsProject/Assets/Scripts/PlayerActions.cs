@@ -17,7 +17,7 @@ public class PlayerActions : MonoBehaviour {
 	public int maxHealth = 100;
     
     //needed to trigger animations
-    Animator anim;
+    public Animator anim;
     public float direction;
 	
 	// Use this for initialization
@@ -25,7 +25,7 @@ public class PlayerActions : MonoBehaviour {
 		targetPos = transform.position; 
 		health = maxHealth; 
 		rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        anim = GetComponent<Animator>();
+        if (anim == null) anim = GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -90,6 +90,11 @@ public class PlayerActions : MonoBehaviour {
 
 	IEnumerator Attack() {       
 		for (;unit.GetComponent<Unit>().health > 0;) {
+			if(enemy.position.x < transform.position.x) {
+				transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+			} else {
+				transform.localEulerAngles = new Vector3(90f, 180f, 0f);
+			}
             anim.SetTrigger("attackDude"); //trigger the attack animation
 			unit.GetComponent<Unit>().Hurt(attackStrength, transform); 
 			yield return new WaitForSeconds(attackTime); 

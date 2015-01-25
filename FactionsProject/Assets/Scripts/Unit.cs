@@ -64,8 +64,7 @@ public class Unit : MonoBehaviour {
 		attackDude = false; 
         anim = GetComponent<Animator>();
 	}
-
-	// Update is called once per frame
+	
 	void Update () {
     
         anim.SetFloat("speed", 0); //sets animation to idle

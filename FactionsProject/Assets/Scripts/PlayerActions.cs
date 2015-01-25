@@ -11,10 +11,12 @@ public class PlayerActions : MonoBehaviour {
 	private float startTime;
 	private float t;
 	private Transform unit; 
+	private bool attackDude = false; 
 	public float controlSpeed = 0.2f;
 	public float clickSpeed = 1f; 
 	public float attackTime = 1f; 
 	public int attackStrength = 10; 
+	public float attackDistance = 0.5f;
 	
 	// Use this for initialization
 	void start() {
@@ -29,16 +31,19 @@ public class PlayerActions : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit, 100000)) { 
 				if (hit.transform.tag == "Ground") {
-					targetPos = ray.GetPoint(0); 
-					targetPos.y = 0;
-					lerpTime = Vector3.Distance(startPos, targetPos) / clickSpeed; 
-					startTime = Time.time; 
+					targetPos = ray.GetPoint(0);  
+					attackDude = false;
+					StopCoroutine("Attack"); 
 				}
 				if (hit.transform.tag == "Populus") {
 					//TODO get move position to populi 
 					unit = hit.transform; 
-					StartCoroutine(Attack()); 
+					targetPos = unit.position; 
+					attackDude = true; 
 				}
+				targetPos.y = 0;
+				lerpTime = Vector3.Distance(startPos, targetPos) / clickSpeed; 
+				startTime = Time.time;
 			}
 		}
 
@@ -50,24 +55,42 @@ public class PlayerActions : MonoBehaviour {
 		else if (lerpTime > 0) {
 			t = (Time.time - startTime) / lerpTime; 
 			transform.position = Vector3.Lerp(startPos, targetPos, t); 
+			if (attackDude) {
+				float dist = Vector3.Distance(transform.position, targetPos);
+				if (dist <= attackDistance) {
+					t = 1; 
+					StartCoroutine("Attack");
+				}
+			}
 			if (t >= 1) {
 				targetPos = new Vector3 (0, -0.1f, 0); 
 				lerpTime = 0; 
 			}
 		}
 	}
+
+	void LateUpdate () {
+		if (attackDude) {
+
+		}
+	}
+
 	IEnumerator Attack() {
-	//TODO Attack stuff
 		for (;unit.GetComponent<Unit>().health > 0;) {
 			unit.GetComponent<Unit>().health -= attackStrength; 
 			yield return new WaitForSeconds(attackTime); 
 		}
 	}
+
 	void MayAttack (GameObject target) {
 		if ("Square" == target.name) {
 			enemy = target;
 			Debug.Log("MayAttack " + enemy.ToString ());
 		}
+	}
+
+	void onTriggerEnter (Collider col) {
+
 	}
 
 	void OnCollisionEnter (Collision col)

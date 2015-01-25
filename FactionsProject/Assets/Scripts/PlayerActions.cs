@@ -17,7 +17,7 @@ public class PlayerActions : MonoBehaviour {
 	public int maxHealth = 100;
     
     //needed to trigger animations
-    Animator anim;
+    public Animator anim;
     public float direction;
 	
 	// Use this for initialization
@@ -25,7 +25,7 @@ public class PlayerActions : MonoBehaviour {
 		targetPos = transform.position; 
 		health = maxHealth; 
 		rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-        anim = GetComponent<Animator>();
+        if (anim == null) anim = GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame

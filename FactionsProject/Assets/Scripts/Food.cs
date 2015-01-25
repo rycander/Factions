@@ -5,6 +5,7 @@ public class Food : MonoBehaviour {
 
 	private Transform player;
 	public string state;
+	private bool isFirst = true;
 
 	// Use this for initialization
 	void Start () {
@@ -22,7 +23,11 @@ public class Food : MonoBehaviour {
 			}
 		}
 		else if ("pickup" == state) {
-			// TODO
+			if (isFirst) {
+				isFirst = false;
+				Debug.Log ("Food.update: is picked up");
+			}
+			transform.position = new Vector3(player.position.x, transform.position.y, player.position.z); 
 		}
 	}
 }

@@ -20,6 +20,7 @@ public class PlayerActions : MonoBehaviour {
 	void Start() {
 		targetPos = transform.position; 
 		health = maxHealth; 
+		rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 	}
 	
 	// Update is called once per frame

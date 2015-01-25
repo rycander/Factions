@@ -10,7 +10,8 @@ public class Unit : MonoBehaviour {
 	public int attackStrength = 1;
 	public float attackTime = 1f;
 	public float attackDistance = 1f; 
-	public bool attackDude = false; 
+	public bool attackDude{get; set;}  
+	public float loseDistance = 10f; 
 
 	public float speed = 4f; 
 
@@ -23,7 +24,7 @@ public class Unit : MonoBehaviour {
 		health = maxHealth; 
 //		enemy =  GameObject.FindGameObjectWithTag("Player").transform; 
 		targetPos = transform.position; 
-//		attackDude = true; 
+		attackDude = false; 
 	}
 	
 	// Update is called once per frame
@@ -42,7 +43,10 @@ public class Unit : MonoBehaviour {
 		if (targetPos != transform.position) {
 			if (attackDude) {
 				float dist = Vector3.Distance(transform.position, enemy.position);
-				if (dist <= attackDistance) {
+				
+				if (dist > loseDistance) 
+					stopAttacking(); 
+				else if (dist <= attackDistance) {
 					targetPos = transform.position;
 					if (enemy.gameObject.tag == "Player") {
 						StopCoroutine("AttackUnit");
@@ -76,6 +80,12 @@ public class Unit : MonoBehaviour {
 				StartCoroutine("AttackUnit");
 			}
 		}
+	}
+
+	void stopAttacking () {
+		attackDude = false;
+		targetPos = transform.position;
+		enemy = null; 
 	}
 
 	IEnumerator AttackPlayer () {

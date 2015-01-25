@@ -21,9 +21,9 @@ public class MassSpawner : MonoBehaviour {
 	
 	void SpawnUnits () {
 		for (int i = 0; i < spawnNum; ++i){
-			Instantiate(redUnit, randomVec3(10), transform.rotation);
-			Instantiate(bluUnit, randomVec3(10), transform.rotation);
-			Instantiate(ylwUnit, randomVec3(10), transform.rotation);
+			Instantiate(redUnit, randomVec3(50), transform.rotation);
+			Instantiate(bluUnit, randomVec3(50), transform.rotation);
+			Instantiate(ylwUnit, randomVec3(50), transform.rotation);
 		}
 	}
 

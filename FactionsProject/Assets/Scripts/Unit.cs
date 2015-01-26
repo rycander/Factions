@@ -203,7 +203,7 @@ public class Unit : MonoBehaviour {
 			if (null != player) {
 				enemy = player;
 				nearestDistance = Vector3.Distance(this.transform.position, player.position);
-				// return enemy;
+				return enemy;
 			}
 			GameObject[] units = GameObject.FindGameObjectsWithTag("Populus");
 			otherCount = 0;
